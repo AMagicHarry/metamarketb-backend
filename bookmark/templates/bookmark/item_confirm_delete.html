@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ block.super }}-삭제{% endblock %}
+{% block content %}
+    <div class="container">
+        {% include 'back_button.html' %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="alert alert-danger">
+                "{{ object }}"?<br/>
+                이거 정말 삭제할꾸야?-?
+            </div>
+            <input type="submit" value="삭제" class="btn btn-danger" />
+        </form>
+    </div>
+{% endblock %}

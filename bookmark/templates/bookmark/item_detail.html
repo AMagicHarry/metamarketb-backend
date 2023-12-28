@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{{ block.super }}-조회{% endblock %}
+{% block content %}
+    <div class="container">
+        {% include 'back_button.html' %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>사이트 이름</th>
+                    <th>URL</th>
+                    <th>생성 시간</th>
+                    <th>수정 시간</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ object.site_name }}</td>
+                    <td>
+                        <a href="{{ object.site_url }}" target="_blank">
+                            {{ object.site_url }}
+                        </a>
+                    </td>
+                    <td>{{ object.created_at }}</td>
+                    <td>{{ object.updated_at }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

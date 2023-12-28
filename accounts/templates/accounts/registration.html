@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}{{ block.super }}-회원가입{% endblock %}
+{% block content %}
+    <div class="container">
+        {% include 'back_button.html' %}
+
+        <div class="offset-md-3 col-md-6 offset-lg-4 col-lg-4">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% for field in form %}
+                    <!-- TODO: errors 어떻게 표시? -->
+                    <ul>
+                        {% for error in field.errors %}
+                            <li class="text-danger">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {{ field.label }}<br/>
+                    {{ field }}<br/>
+                    {% if field.help_text %}
+                        <small class="text-warning">{{ field.help_text }}</small><br />
+                    {% endif %}
+                {% endfor %}
+
+                <img id="profile_image_preview" src="http://www.clker.com/cliparts/d/L/P/X/z/i/no-image-icon-hi.png"
+                     width="150" height="150" class="rounded border border-primary"/>
+
+                <input type="submit" value="회원가입" class="btn btn-success w-100 my-3" />
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#profile_image_preview').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("input[name='profile_image']").change(function(){
+        readURL(this);
+    });
+</script>
+{% endblock %}

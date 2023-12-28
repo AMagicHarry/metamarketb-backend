@@ -1,0 +1,14 @@
+__pycache__
+*.pyc
+*.log
+.idea
+db.sqlite3
+data
+file.txt
+ganache/kc.zip
+ganache/mtm.zip
+ganache/mtmf.zip
+ganache/tw.zip
+ganache/done
+venv
+app_index/templates/app_index/meta.html

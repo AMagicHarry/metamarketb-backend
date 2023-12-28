@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}{{ block.super }}-홈{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for test_user in test_users  %}
+            <h5>
+                <a href="{% url 'login_test_user' forloop.counter %}">{{ test_user.nickname }}로 로그인</a> <br/>
+            </h5>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}{{ block.super }}-내 북마크 목록{% endblock %}
+{% block css %} <!-- ToDo: 반복 -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bookmark/css/item_list.css' %}"/>
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% load bookmark_extra %}
+
+{% comment %}
+    {% if messages %}
+        {% for message in messages %}
+            <script>alert('{{ message }}');</script>
+        {% endfor %}
+    {% endif %}
+{% endcomment %}
+
+    {% include 'back_button.html' %}
+
+    <button id="follow-btn" class="btn btn-info mb-3">
+        {% if is_following %}
+            <i class="fas fa-user-times">언팔로우</i>
+        {% else %}
+            <i class="fas fa-user-plus">팔로우</i>
+        {% endif %}
+    </button>
+
+    <div class="mb-2">
+        팔로워: {{ follower_cnt }}
+    </div>
+
+    <div class="card-columns mb-3">
+        {% for bookmark_list in object_list %}
+            <div class="card">
+                <div class="card-header text-white px-2" style="background-color: #34e89e;">
+                    {% with profile_image_url=bookmark_list.user.get.profile_image.url %}
+                        {% if profile_image_url == '/media/profile_images/no_image.png' %}
+                            <i class="fas fa-user-circle align-middle px-2" style="font-size: 2em;"></i>
+                        {% else %}
+                            <img src="{{ bookmark_list.user.get.profile_image.url }}" width="30" height="30" class="rounded" />
+                        {% endif %}
+                    {% endwith %}
+                    <span class="align-middle">{{ bookmark_list.user.get.nickname }}</span>
+                </div>
+                <div onclick="location.href='\
+                    {% url 'bookmark:public_item_list' nickname=url_nickname pk=bookmark_list.id %}';"
+                    class="card-body pl-3" style="text-decoration: none;">
+
+                    <h5 class="card-title mb-4">{{ bookmark_list.list_name }}</h5>
+                    <h6 class="card-subtitle mb-4 text-muted">
+                        생성 : {{ bookmark_list.created_at }}<br/>
+                        수정 : {{ bookmark_list.updated_at }}
+                    </h6>
+                    <p class="card-text">{{ bookmark_list.description }}</p>
+                </div>
+                <div class="card-footer" style="height: 3.5rem; position: relative; font-size: 1.3rem;">
+                    <div class="d-inline-block" style="position: absolute; left: 1em;">
+                        <i class="
+                            {% if is_fan|return_item:bookmark_list.pk %}
+                                fas
+                            {% else %}
+                                far
+                            {% endif %}
+                            fa-heart p-0" style="color: red; padding: 0.2rem;" id="list_{{ bookmark_list.id }}"></i>
+                        <small style="font-size: 0.8rem;">{{ bookmark_list.fan_of_list.count }}</small>
+                    </div>
+                    <div class="d-inline-block text-right" style="position: absolute; right: 1em;">
+                        <i class="fas fa-share-alt" style="padding: 0.2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% with nickname=url_nickname %}
+        <ul class="pagination pagination-sm justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="/bookmark/{{ nickname }}/?page={{ page_obj.previous_page_number }}">previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">previous</a>
+                </li>
+            {% endif %}
+            {% for page_num in page_obj.number|prange:page_obj.paginator.num_pages %}
+                {% if page_num == page_obj.number %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="/bookmark/{{ nickname }}/?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="/bookmark/{{ nickname }}/?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="/bookmark/{{ nickname }}/?page={{ page_obj.next_page_number }}">next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">next</a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endwith %}
+</div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        function on_hover_card_body() {
+            var footer = $(this).next();
+
+            footer.addClass('card-hover');
+
+            var children = footer.children();
+            for(let i=0; i<children.length; i++) {
+                $(children[i]).removeClass('text-dark');
+                $(children[i]).addClass('text-white');
+            }
+        }
+        function out_hover_card_body() {
+            var footer = $(this).next();
+
+            footer.removeClass('card-hover');
+
+            var children = footer.children();
+            for(let i=0; i<children.length; i++) {
+                $(children[i]).addClass('text-dark');
+                $(children[i]).removeClass('text-white');
+            }
+        }
+
+        function is_liked($this) {
+            return $this.hasClass('fas')
+        }
+        function toggle_heart($this) {
+            $cnt = $this.next();
+            current_cnt = $cnt.html();
+
+            if(is_liked($this)) {
+                $this.addClass('far');
+                $this.removeClass('fas');
+                $cnt.html(parseInt(current_cnt)-1);
+            } else {
+                $this.addClass('fas');
+                $this.removeClass('far');
+                $cnt.html(parseInt(current_cnt)+1);
+            }
+        }
+        function on_heart_clicked() {
+            var $this = $(this);
+            var _id = this.id.split('_')[1];
+            var _url = location.href + _id;
+
+            _url += is_liked($this) ? '/unlike-this/' : '/like-this/';
+            // ToDo: absolute route
+
+            $.ajax({
+                url: _url,
+                type: 'POST',
+                data: {
+                    'list_pk': _id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function () {
+                    toggle_heart($this);
+                },
+                error: function() {
+                    console.log('실패');
+                }
+            });
+        }
+
+        function is_following($this) {
+            return $this.hasClass('fa-user-times');
+        }
+        function toggle_follow_btn($this, _is_following) { // ToDo: follower 카운트 보여주기
+            if(_is_following) {
+                $this.addClass('fa-user-plus');
+                $this.removeClass('fa-user-times');
+                $this.html('팔로우');
+            } else {
+                $this.removeClass('fa-user-plus');
+                $this.addClass('fa-user-times');
+                $this.html('언팔로우');
+            }
+        }
+        function on_follow_btn_clicked() {
+            var $this = $($(this).children()[0]);
+            var _is_following = is_following($this)
+            var _url =
+                 _is_following ? '{% url 'bookmark:unfollow_user' nickname=url_nickname %}'
+                    : '{% url 'bookmark:follow_user' nickname=url_nickname %}';
+
+            $.ajax({
+                url: _url,
+                type: 'POST',
+                data: {
+                    'nickname': '{{ url_nickname }}',
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function () {
+                    toggle_follow_btn($this, _is_following);
+                },
+                error: function() {
+                    console.log('팔로/언팔 실패');
+                }
+            });
+        }
+
+        $('.card-body').css( 'cursor', 'pointer' ).hover(on_hover_card_body, out_hover_card_body);
+        $('[id^=list_]').css('cursor', 'pointer').on('click', on_heart_clicked);
+        $('[id=follow-btn]').on('click', on_follow_btn_clicked);
+    </script>
+{% endblock %}

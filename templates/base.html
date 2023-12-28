@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko" style="height: 100%; ">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+        integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    {% block css %}{% endblock %}
+
+    <title>{% block title %}북마크{% endblock %}</title>
+</head>
+
+<body>
+    <header style="background-color: #222222;">
+        <nav class="container-fluid px-sm-5 mb-3 navbar navbar-expand-lg navbar-dark">
+            <h2 class="col-3 pl-0"><a href="{% url 'index' %}" class="navbar-brand">Django Bookmark</a></h2>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler"
+                aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="col-9 justify-content-end collapse navbar-collapse" id="navbarToggler">
+                <ul class="navbar-nav">
+                    {% if not request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a href="{% url 'accounts:login' %}" class="nav-link w-40">로그인</a>
+                    </li>
+                    <li class="nav-item disabled">
+                        <a href="{% url 'accounts:register' %}" class="nav-link">회원가입</a>
+                    </li>
+                    <li class="nav-item disabled">
+                        <a href="{% url 'accounts:password_reset' %}" class="nav-link">비밀번호 리셋</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a href="{% url 'accounts:logout' %}" class="nav-link">로그아웃</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'accounts:password_change' %}" class="nav-link">비밀번호 변경</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <button class="btn btn-primary nav-link text-white" id="connect-wallet-button"
+                            onclick="openPopup()">Connect
+                            Wallet</button>
+                    </li>
+                    {% load static %}
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mb-5">
+        <div class="accordion border-bottom" id="accordionExample">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne" style="text-decoration: none;">
+                            how it works
+                        </button>
+
+                    </h2>
+                </div>
+
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                    data-parent="#accordionExample">
+                    <div class="card-body">
+                        <p>
+                            /bookmark/ => 자신의 북마크 리스트<br />
+                            /bookmark/test_001(~010)/ => 공개로 설정한 북마크 리스트
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" id="headingTwo">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo"
+                            style="text-decoration: none;">
+                            To Do
+                        </button>
+                    </h2>
+                </div>
+
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                    <div class="card-body">
+                        <p>
+                        <ul>
+                            <li>댓글</li>
+                            <li>정렬/검색</li>
+                            <li>race condition</li>
+                            <li>배포 방법</li>
+                        </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-white px-5 py-4" style="background-color: #222222;">
+        <div>
+            &copy;2019 nab5m - All rights reserved.<br />
+            nab5m.pythonanywhere.com is maintained by JunYoung, Kim.<br />
+        </div>
+        <div class="text-right" style="font-size: 1.3rem;">
+            <a href="http://github.com/nab5m/" target="_blank" class="text-white p-1" style="text-decoration: none;">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=100011737238706" target="_blank" class="text-white p-1"
+                style="text-decoration: none;">
+                <i class="fab fa-facebook"></i>
+            </a>
+        </div>
+    </footer>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    {% block scripts %}{% endblock %}
+    <script>
+        if ($('body').height() < $('html').height()) {
+            let $body = $('body');
+            let $footer = $('footer');
+            $body.css('min-height', '100%');
+            $body.css('position', 'relative');
+
+            $footer.css('position', 'absolute');
+            $footer.css('bottom', '0');
+            $footer.css('width', '100%');
+        }
+        function openPopup() {
+            var height = 600;
+            var width = 360;
+            var topPosition = window.screenTop || window.screenY || 0;
+            var rightPosition = window.screenLeft + window.innerWidth - width;
+
+            var newWindow = window.open("", "", "height=" + height + ", width=" + width + ", top=" + topPosition + ", left=" + rightPosition + ", scrollbars=no");
+            newWindow.location.href = "{% url 'popup_view' %}";
+        }
+
+    </script>
+</body>
+
+</html>

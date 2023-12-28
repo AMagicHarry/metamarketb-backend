@@ -1,0 +1,17 @@
+{% extends 'form_base.html' %}
+{% block title %}{{ block.super }}-로그인{% endblock %}
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <script>alert('{{ message }}');</script>
+        {% endfor %}
+    {% endif %}
+
+    <div class="container">
+        {% include 'back_button.html' %}
+
+        {% with '로그인' as button_value %}
+            {{ block.super }}
+        {% endwith %}
+    </div>
+{% endblock %}

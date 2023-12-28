@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}{{ block.super }}-아이템{% endblock %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bookmark/css/item_list.css' %}"/>
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% include 'back_button.html' %}
+
+    <div class="d-flex justify-content-end">
+        <a href="{% url 'bookmark:add_item' url_list_pk %}" class="btn btn-info mb-3">
+            <i class="fas fa-pencil-alt" style="padding: 0.2rem;"></i> 추가하기
+        </a>
+    </div>
+
+    <div class="mb-2">
+        팔로워: {{ follower_cnt }}
+    </div>
+
+    <div class="card-columns mb-3">
+        {% for bookmark in object_list %}
+            <div class="card" style="border: 1px solid #34e89e">
+                <div class="card-header px-2 text-white" style="background-color: #34e89e;">
+                    {% with profile_image_url=bookmark.belonged_list.user.get.profile_image.url %}
+                        {% if profile_image_url == '/media/profile_images/no_image.png' %}
+                            <i class="fas fa-user-circle align-middle px-2" style="font-size: 2em;"></i>
+                        {% else %}
+                            <img src="{{ bookmark_list.user.get.profile_image.url }}" width="30" height="30" class="rounded" />
+                        {% endif %}
+                    {% endwith %}
+                    <span class="align-middle">{{ bookmark.site_name }}</span>
+                </div>
+                <div onclick="location.href='{% url 'bookmark:item_detail' list_pk=url_list_pk pk=bookmark.id %}';" class="card-body pl-3" style="text-decoration: none;">
+                    <!--<h5 class="card-title mb-4">{{ bookmark_list.list_name }}</h5>-->
+                    <h6 class="card-subtitle mb-4 text-muted">
+                        생성 : {{ bookmark.created_at }}<br/>
+                        수정 : {{ bookmark.updated_at }}
+                    </h6>
+                    <p class="card-text">
+                        <a href="{{ bookmark.site_url }}" target="_blank" onclick="event.stopPropagation();">
+                            {{ bookmark.site_url }}
+                        </a>
+                    </p>
+                </div>
+                <div class="card-footer" style="height: 3.5rem; position: relative; font-size: 1.3rem;">
+                    <div class="d-inline-block" style="position: absolute; left: 1em;">
+                        <i class="
+                            {% if bookmark.fan_of_item.count %}
+                                fas
+                            {% else %}
+                                far
+                            {% endif %}
+                            fa-heart p-0" style="color: red; padding: 0.2rem;"></i>
+                        <small style="font-size: 0.8rem;">{{ bookmark.fan_of_item.count }}</small>
+                    </div>
+                    <div class="d-inline-block text-right" style="position: absolute; right: 1em;">
+                        <i class="fas fa-share-alt" style="padding: 0.2rem;"></i>
+                        <a href="{% url 'bookmark:update_item' list_pk=url_list_pk pk=bookmark.id %}" style="text-decoration: none;" class="text-dark">
+                            <i class="fas fa-pencil-alt" style="padding: 0.2rem;"></i>
+                        </a>
+                        <a href="{% url 'bookmark:delete_item' list_pk=url_list_pk pk=bookmark.id %}" style="text-decoration: none;" class="text-dark">
+                            <i class="far fa-trash-alt" style="padding: 0.2rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% load bookmark_extra %}
+
+    {% with list_pk=url_list_pk %}
+        <ul class="pagination pagination-sm justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="/bookmark/{{ list_pk }}/?page={{ page_obj.previous_page_number }}">
+                            previous
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">previous</a>
+                    </li>
+                {% endif %}
+                {% for page_num in page_obj.number|prange:page_obj.paginator.num_pages %}
+                    {% if page_num == page_obj.number %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="/bookmark/{{ list_pk }}/?page={{ page_num }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="/bookmark/{{ list_pk }}/?page={{ page_num }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="/bookmark/{{ list_pk }}/?page={{ page_obj.next_page_number }}">
+                            next
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">next</a>
+                    </li>
+                {% endif %}
+        </ul>
+    {% endwith %}
+</div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        $('.card-body').css( 'cursor', 'pointer' ).hover(function () {
+            var footer = $(this).next();
+
+            footer.addClass('card-hover');
+
+            var childrens = [footer.children(), footer.find('a')];
+            for(let i=0; i<childrens.length; i++) {
+                for(let j=0; j<childrens[i].length; j++) {
+                    $(childrens[i][j]).addClass('text-white');
+                    $(childrens[i][j]).removeClass('text-dark');
+                }
+            }
+        }, function () {
+            var footer = $(this).next();
+
+            footer.removeClass('card-hover');
+
+            var childrens = [footer.children(), footer.find('a')];
+            for(let i=0; i<childrens.length; i++) {
+                for(let j=0; j<childrens[i].length; j++) {
+                    $(childrens[i][j]).removeClass('text-white');
+                    $(childrens[i][j]).addClass('text-dark');
+                }
+            }
+        });
+    </script>
+{% endblock %}

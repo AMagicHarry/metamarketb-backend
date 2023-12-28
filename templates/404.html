@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}{{ block.super }}-페이지 없음{% endblock %}
+{% block content %}
+    <div class="container">
+        {% include 'back_button.html' %}
+        <div class="text-center">
+            <h1>해당 페이지가 존재하지 않습니다</h1>
+            <p>URL을 다시 확인해주세요!</p>
+        </div>
+    </div>
+{% endblock %}

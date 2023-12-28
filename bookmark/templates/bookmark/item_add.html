@@ -1,0 +1,11 @@
+{% extends 'form_base.html' %}
+{% block title %}{{ block.super }}-추가{% endblock %}
+{% block content %}
+    <div class="container">
+        {% include 'back_button.html' %}
+
+        {% with '추가' as button_value %}
+            {{ block.super }}
+        {% endwith %}
+    </div>
+{% endblock %}

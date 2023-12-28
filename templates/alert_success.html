@@ -1,0 +1,7 @@
+<script>
+    window.onload = function() {
+        alert("{% block message %}{% endblock %}");
+        location.href = "{% block redirect_url %}{% endblock %}";
+    }
+    // TODO: template은 프론트엔드 로직인데 과한 include인가?
+</script>
